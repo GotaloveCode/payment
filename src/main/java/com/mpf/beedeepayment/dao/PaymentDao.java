@@ -8,5 +8,5 @@ public interface PaymentDao {
 
     int insertPayment(Payment payment);
 
-    List<Payment> payments;
+//    List<Payment> payments;
 }

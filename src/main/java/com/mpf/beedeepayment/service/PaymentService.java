@@ -4,9 +4,9 @@ import com.mpf.beedeepayment.dao.PaymentDao;
 import com.mpf.beedeepayment.model.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
-
+@Service
 public class PaymentService {
     private final PaymentDao paymentDao;
 

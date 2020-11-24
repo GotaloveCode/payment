@@ -1,5 +1,9 @@
 package com.mpf.beedeepayment.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+
 public class Payment {
     private final int id;
     private final String phone;
@@ -29,6 +33,7 @@ public class Payment {
         this.payment_method = payment_method;
     }
 
+    @Id
     public int getId() {
         return id;
     }
@@ -72,6 +77,14 @@ public class Payment {
     public String getPayment_method() {
         return payment_method;
     }
+
+//    public void setId(int id) {
+//        this.id = id;
+//    }
+//
+//    public String getId() {
+//        return id;
+//    }
 //    $table->increments('id');
 //    $table->string('name');
 //    $table->string('phone')->nullable();
