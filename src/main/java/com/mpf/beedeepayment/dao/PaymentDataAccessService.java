@@ -1,65 +1,95 @@
 package com.mpf.beedeepayment.dao;
 
+import com.mpf.beedeepayment.model.Bidbond;
 import com.mpf.beedeepayment.model.Payment;
+import com.mpf.beedeepayment.repository.PaymentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
-@Repository("paymentDao")
-public class PaymentDataAccessService implements PaymentDao{
-    private static List<Payment> payments = new ArrayList<>();
+@Repository
+public class PaymentDataAccessService {
+    private final JdbcTemplate jdbcTemplate;
 
-    @Override
-    public int insertPayment(Payment payment) {
-//        payments.add(new Payment(payment.getId(),))
-        return 0;
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    public PaymentDataAccessService(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-//    public List<Payment> getUnprocessedPayments()
-//    {
-//        $bidbonds = [];
-//        $payments = Payment::select(['account','payable_id'])->where(['confirmed' => 1, 'processed' => 0, 'payable_type' => 'App\Bidbond'])->groupBy(['account','payable_id'])->get();
-//        foreach ($payments as $payment){
-//        $bidbond_amount = Payment::where('account', $payment->account)->sum('amount');
-//        $bidbond = new stdClass();
-//        $bidbond->secret = $payment->payable_id;
-//        $bidbond->amount = $bidbond_amount;
-//        array_push($bidbonds, $bidbond);
-//    }
-//        return response()->json($bidbonds);
-//    }
+    public Optional<Payment> getByAccount(String account) {
+        List<Payment> payments = paymentRepository.findByAccount(account);
+        return payments.stream().findFirst();
+    }
 
+    public Page<Payment> getPayments(int page) {
+        return paymentRepository.findAll(PageRequest.of(page, 15));
+    }
 
-//    public function getByPayableIds(Request $request)
-//    {
-//        $validator = Validator::make($request->all(), [
-//        'payable_ids' => 'bail|required|array'
-//        ]);
-//
-//        if ($validator->fails()) {
-//            return response()->json([
-//                    'status' => 'error',
-//                    'error' => ['message' => $validator->errors()->all()]
-//            ], 422);
-//        }
-//
-//        return response()->json(Payment::whereIn('payable_id', $request->payable_ids)->latest()->paginate());
-//    }
-//
-//    public function getByAccount($account)
-//    {
-//        $payment = Payment::where('account', $account)->exists();
-//
-//        if (!$payment) {
-//            return response()->json([
-//                    'status' => 'error',
-//                    'error' => ['message' => 'Account not found']
-//            ], 422);
-//        }
-//
-//        return response()->json(Payment::where('account', $account)->latest()->first());
-//    }
+    public Page<Payment> searchBy(String term, int page) {
+        return paymentRepository.findByNameLikeOrPhoneOrAccountOrTransactionNumber(term, term, term, term, PageRequest.of(page, 15));
+    }
 
+    public List<Bidbond> getUnprocessedPayments() {
+        List<String> payments = jdbcTemplate.queryForList("SELECT account FROM payments WHERE confirmed=1 AND processed=0 AND payable_type='App\\\\Bidbond' GROUP BY account,payable_id", String.class);
+        List<Bidbond> bid_payments = new ArrayList<>(payments.size());
+        for (String account : payments)
+            bid_payments.add(new Bidbond(account, paymentRepository.totalPayment(account)));
+
+        return bid_payments;
+    }
+
+    public List<Payment> getByPayableIds(List<String> payable_ids) {
+        return paymentRepository.findByPayableIdIn(payable_ids);
+    }
+
+    public Optional<Payment> setProcessed(String account) {
+        List<Payment> payments = paymentRepository.findByAccount(account);
+
+        payments.forEach(payment -> {
+            payment.setProcessed(true);
+        });
+        paymentRepository.saveAll(payments);
+        return payments.stream().findFirst();
+    }
 
 }
+
+
+class PaymentMapper implements RowMapper<Payment> {
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public Payment mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new Payment(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("phone"),
+                Double.parseDouble(rs.getString("amount")),
+                rs.getString("account"),
+                rs.getString("transaction_number"),
+                rs.getString("transaction_date"),
+                rs.getString("payable_type"),
+                rs.getString("payable_id"),
+                rs.getBoolean("processed"),
+                rs.getBoolean("confirmed"),
+                rs.getString("payment_method"),
+                LocalDateTime.parse(rs.getString("created_at"), formatter),
+                LocalDateTime.parse(rs.getString("updated_at"), formatter)
+        );
+    }
+}
+
+

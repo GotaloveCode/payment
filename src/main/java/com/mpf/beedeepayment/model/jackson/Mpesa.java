@@ -191,10 +191,24 @@ public class Mpesa {
         this.typeId = typeId;
     }
 
-
-//    @Override
-//    public String toString() {
-//        return new ToStringBuilder(this).append("transactionType", transactionType).append("transID", transID).append("transTime", transTime).append("transAmount", transAmount).append("businessShortCode", businessShortCode).append("billRefNumber", billRefNumber).append("invoiceNumber", invoiceNumber).append("orgAccountBalance", orgAccountBalance).append("thirdPartyTransID", thirdPartyTransID).append("mSISDN", mSISDN).append("firstName", firstName).append("middleName", middleName).append("lastName", lastName).toString();
-//    }
+    @Override
+    public String toString() {
+        return "Mpesa{" +
+                "transactionType='" + transactionType + '\'' +
+                ", transID='" + transID + '\'' +
+                ", transTime='" + transTime + '\'' +
+                ", transAmount='" + transAmount + '\'' +
+                ", businessShortCode='" + businessShortCode + '\'' +
+                ", billRefNumber='" + billRefNumber + '\'' +
+                ", invoiceNumber=" + invoiceNumber +
+                ", orgAccountBalance='" + orgAccountBalance + '\'' +
+                ", thirdPartyTransID=" + thirdPartyTransID +
+                ", mSISDN='" + mSISDN + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", middleName='" + middleName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", typeId='" + typeId + '\'' +
+                '}';
+    }
 
 }

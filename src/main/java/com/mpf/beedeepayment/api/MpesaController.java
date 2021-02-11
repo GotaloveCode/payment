@@ -1,18 +1,12 @@
 package com.mpf.beedeepayment.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpf.beedeepayment.model.jackson.Mpesa;
 import com.mpf.beedeepayment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.PrintWriter;
-
-@RequestMapping("api")
+@RequestMapping("api/safaricom")
 @RestController
 public class MpesaController {
     private final PaymentService paymentService;
@@ -21,6 +15,12 @@ public class MpesaController {
     public MpesaController(PaymentService paymentService) {
         this.paymentService = paymentService;
     }
+
+    @PostMapping(path = "/c2b/validation/callback/{secret}")
+    public void c2bValidation(@PathVariable("secret") @RequestBody Mpesa mpesa) {
+        insertPaymentDetails(mpesa);
+    }
+
 
 //    @PostMapping
 //    public c2bValidation(@NonNull @RequestBody Mpesa mpesa) {
