@@ -1,25 +1,8 @@
 package com.mpf.beedeepayment.model.jackson;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.util.Optional;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-        "TransactionType",
-        "TransID",
-        "TransTime",
-        "TransAmount",
-        "BusinessShortCode",
-        "BillRefNumber",
-        "InvoiceNumber",
-        "OrgAccountBalance",
-        "ThirdPartyTransID",
-        "MSISDN",
-        "FirstName",
-        "MiddleName",
-        "LastName"
-})
 public class Mpesa {
 
     @JsonProperty("TransactionType")
@@ -35,11 +18,11 @@ public class Mpesa {
     @JsonProperty("BillRefNumber")
     private String billRefNumber;
     @JsonProperty("InvoiceNumber")
-    private Object invoiceNumber;
+    private String invoiceNumber;
     @JsonProperty("OrgAccountBalance")
     private String orgAccountBalance;
     @JsonProperty("ThirdPartyTransID")
-    private Object thirdPartyTransID;
+    private String thirdPartyTransID;
     @JsonProperty("MSISDN")
     private String mSISDN;
     @JsonProperty("FirstName")
@@ -49,7 +32,9 @@ public class Mpesa {
     @JsonProperty("LastName")
     private String lastName;
     @JsonProperty("type_id")
-    private String typeId;
+    public String typeId;
+
+
 
     @JsonProperty("TransactionType")
     public String getTransactionType() {
@@ -112,12 +97,12 @@ public class Mpesa {
     }
 
     @JsonProperty("InvoiceNumber")
-    public Object getInvoiceNumber() {
+    public String getInvoiceNumber() {
         return invoiceNumber;
     }
 
     @JsonProperty("InvoiceNumber")
-    public void setInvoiceNumber(Object invoiceNumber) {
+    public void setInvoiceNumber(String invoiceNumber) {
         this.invoiceNumber = invoiceNumber;
     }
 
@@ -132,12 +117,12 @@ public class Mpesa {
     }
 
     @JsonProperty("ThirdPartyTransID")
-    public Object getThirdPartyTransID() {
+    public String getThirdPartyTransID() {
         return thirdPartyTransID;
     }
 
     @JsonProperty("ThirdPartyTransID")
-    public void setThirdPartyTransID(Object thirdPartyTransID) {
+    public void setThirdPartyTransID(String thirdPartyTransID) {
         this.thirdPartyTransID = thirdPartyTransID;
     }
 
@@ -181,34 +166,45 @@ public class Mpesa {
         this.lastName = lastName;
     }
 
-    @JsonProperty("type_id")
+    public void setTypeId(String typeId) {
+         this.typeId = typeId;
+    }
+
     public String getTypeId() {
         return typeId;
     }
 
-    @JsonProperty("type_id")
-    public void setTypeId(String lastName) {
-        this.typeId = typeId;
+    public Mpesa(String transactionType, String transID, String transTime, String transAmount, String businessShortCode, String billRefNumber, String invoiceNumber, String orgAccountBalance, String thirdPartyTransID, String mSISDN, String firstName, String middleName, String lastName) {
+        super();
+        this.transactionType = transactionType;
+        this.transID = transID;
+        this.transTime = transTime;
+        this.transAmount = transAmount;
+        this.businessShortCode = businessShortCode;
+        this.billRefNumber = billRefNumber;
+        this.invoiceNumber = invoiceNumber;
+        this.orgAccountBalance = orgAccountBalance;
+        this.thirdPartyTransID = thirdPartyTransID;
+        this.mSISDN = mSISDN;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
     }
 
-    @Override
-    public String toString() {
-        return "Mpesa{" +
-                "transactionType='" + transactionType + '\'' +
-                ", transID='" + transID + '\'' +
-                ", transTime='" + transTime + '\'' +
-                ", transAmount='" + transAmount + '\'' +
-                ", businessShortCode='" + businessShortCode + '\'' +
-                ", billRefNumber='" + billRefNumber + '\'' +
-                ", invoiceNumber=" + invoiceNumber +
-                ", orgAccountBalance='" + orgAccountBalance + '\'' +
-                ", thirdPartyTransID=" + thirdPartyTransID +
-                ", mSISDN='" + mSISDN + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", typeId='" + typeId + '\'' +
-                '}';
-    }
-
+//    public Mpesa(String transactionType, String transID, String transTime, String transAmount, String businessShortCode, String billRefNumber, String invoiceNumber, String orgAccountBalance, String thirdPartyTransID, String mSISDN, String firstName, String middleName, String lastName,Optional<String> typeId) {
+//        this.transactionType = transactionType;
+//        this.transID = transID;
+//        this.transTime = transTime;
+//        this.transAmount = transAmount;
+//        this.businessShortCode = businessShortCode;
+//        this.billRefNumber = billRefNumber;
+//        this.invoiceNumber = invoiceNumber;
+//        this.orgAccountBalance = orgAccountBalance;
+//        this.thirdPartyTransID = thirdPartyTransID;
+//        this.mSISDN = mSISDN;
+//        this.firstName = firstName;
+//        this.middleName = middleName;
+//        this.lastName = lastName;
+//        this.typeId = typeId;
+//    }
 }

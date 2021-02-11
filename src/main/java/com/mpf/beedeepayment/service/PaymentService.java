@@ -28,7 +28,6 @@ public class PaymentService {
         return paymentDataAccessService.searchBy(term, page);
     }
 
-
     public List<Bidbond> getUnprocessedPayments() {
         return paymentDataAccessService.getUnprocessedPayments();
     }
@@ -37,12 +36,23 @@ public class PaymentService {
         return paymentDataAccessService.getByAccount(account);
     }
 
-    public List<Payment> getByPayableIds(List<String> payable_ids) {
-        return paymentDataAccessService.getByPayableIds(payable_ids);
+    public Page<Payment> getByPayableIds(List<String> payable_ids, int page) {
+        return paymentDataAccessService.getByPayableIds(payable_ids,page);
     }
 
     public Optional<Payment> setProcessed(String account) {
         return paymentDataAccessService.setProcessed(account);
     }
 
+    public Double getSumByPayableId(String payable_id) {
+        return paymentDataAccessService.getSumByPayableId(payable_id);
+    }
+
+    public Optional<Payment> findByTransactionNumber(String transaction_number) {
+        return paymentDataAccessService.findByTransactionNumber(transaction_number);
+    }
+
+    public void save(Payment payment) {
+        paymentDataAccessService.save(payment);
+    }
 }

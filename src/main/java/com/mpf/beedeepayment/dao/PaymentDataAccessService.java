@@ -3,8 +3,6 @@ package com.mpf.beedeepayment.dao;
 import com.mpf.beedeepayment.model.Bidbond;
 import com.mpf.beedeepayment.model.Payment;
 import com.mpf.beedeepayment.repository.PaymentRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,8 +50,12 @@ public class PaymentDataAccessService {
         return bid_payments;
     }
 
-    public List<Payment> getByPayableIds(List<String> payable_ids) {
-        return paymentRepository.findByPayableIdIn(payable_ids);
+    public Page<Payment> getByPayableIds(List<String> payable_ids, int page) {
+        return paymentRepository.findByPayableIdIn(payable_ids,PageRequest.of(page, 15));
+    }
+
+    public Double getSumByPayableId(String payable_id) {
+        return paymentRepository.sumByPayableId(payable_id);
     }
 
     public Optional<Payment> setProcessed(String account) {
@@ -64,6 +66,15 @@ public class PaymentDataAccessService {
         });
         paymentRepository.saveAll(payments);
         return payments.stream().findFirst();
+    }
+
+    public Optional<Payment> findByTransactionNumber(String transaction_number){
+        return paymentRepository.findByTransactionNumber(transaction_number);
+    }
+
+    public void save(Payment payment)
+    {
+        paymentRepository.save(payment);
     }
 
 }
@@ -80,7 +91,7 @@ class PaymentMapper implements RowMapper<Payment> {
                 Double.parseDouble(rs.getString("amount")),
                 rs.getString("account"),
                 rs.getString("transaction_number"),
-                rs.getString("transaction_date"),
+                LocalDateTime.parse(rs.getString("transaction_date"), formatter),
                 rs.getString("payable_type"),
                 rs.getString("payable_id"),
                 rs.getBoolean("processed"),
