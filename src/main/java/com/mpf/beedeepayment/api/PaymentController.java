@@ -81,7 +81,7 @@ public class PaymentController {
     }
 
     @PostMapping(path = "/payments/paid",
-            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+            consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     public Optional<Payment> setPaid(@RequestBody AccountResponse account) {
         return paymentService.setProcessed(account.getAccount());

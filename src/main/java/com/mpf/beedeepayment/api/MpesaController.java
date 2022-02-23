@@ -5,9 +5,15 @@ import com.mpf.beedeepayment.model.Payment;
 import com.mpf.beedeepayment.model.Wallet;
 import com.mpf.beedeepayment.model.WalletTransaction;
 import com.mpf.beedeepayment.model.jackson.Mpesa;
+import com.mpf.beedeepayment.model.jackson.trxconfirm.Item;
+import com.mpf.beedeepayment.model.jackson.trxconfirm.TrxConfirmation;
+import com.mpf.beedeepayment.model.jackson.trxstatus.ResultParameter;
+import com.mpf.beedeepayment.model.jackson.trxstatus.ResultParameters;
+import com.mpf.beedeepayment.model.jackson.trxstatus.TrxStatus;
 import com.mpf.beedeepayment.service.PaymentService;
 import com.mpf.beedeepayment.service.WalletService;
 import com.mpf.beedeepayment.service.WalletTransactionService;
+import com.mpf.beedeepayment.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +26,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -71,6 +78,43 @@ public class MpesaController {
         }
 
         updatePayment(mpesa.getTransID());
+
+        return successfulMpesaCallBack();
+    }
+
+    @PostMapping(path = "/stk/confirmation/callback/{secret}")
+    public ResponseEntity<Map<String, Object>> stkConfirmation(@PathVariable("secret") String secret, @RequestBody TrxConfirmation trx) {
+        logger.info("STK Confirmation: ", trx);
+        if (trx.getBody().getStkCallback().getResultCode().equals(0)) {
+            List<Item> items = trx.getBody().getStkCallback().getCallbackMetadata().getItem();
+            for (Item i: items) {
+                if(i.getName().equals("MpesaReceiptNumber")){
+                    updatePayment(i.getValue());
+                    break;
+                }
+            }
+        }
+        return successfulMpesaCallBack();
+    }
+
+    @PostMapping(path = "/trx-status/timeout/callback/{secret}")
+    public ResponseEntity<Map<String, Object>> trxStatusTimeout(@PathVariable("secret") String secret, @RequestBody String data) {
+        logger.info(data);
+        return successfulMpesaCallBack();
+    }
+
+    @PostMapping(path = "/trx-status/confirmation/callback/{secret}")
+    public ResponseEntity<Map<String, Object>> trxStatusConfirmation(@PathVariable("secret") String secret, @RequestBody TrxStatus trx) {
+        logger.info("trxStatusConfirmation: ", trx);
+        if (trx.getResult().getResultCode().equals(0) && trx.getResult().getResultType().equals(0)) {
+            List<ResultParameter> params = trx.getResult().getResultParameters().getResultParameter();
+            ResultParameter receipt = params.stream().filter(x-> x.getKey().equals("ReceiptNo")).findFirst().orElse(null);
+            ResultParameter transaction = params.stream().filter(x-> x.getKey().equals("TransactionStatus")).findFirst().orElse(null);
+            if(receipt != null && transaction!= null){
+                if(transaction.getValue().equals("Completed"))
+                updatePayment(receipt.getValue());
+            }
+        }
 
         return successfulMpesaCallBack();
     }
@@ -172,20 +216,11 @@ public class MpesaController {
         walletTransactionService.save(
                 new WalletTransaction(
                         payment.getAmount(), payment.getAccount(), payment.getId(),
-                        "WX",
+                        Helper.getToken("WX", 10),
                         payment.getTransaction_date(), type, payment.getPayableId(), "debit"
                 )
         );
-
-//        $wallet_transaction->transaction_number = getToken(10, 'capnum', 'WX');
     }
 
-//
-//    public function trxStatusTimeout(Request $request)
-//    {
-//        $response = $request->all();
-//        Log::info($response);
-//
-//        return response()->json(["ResultCode" => 0, "ResultDesc" => "Success"]);
-//    }
+
 }
